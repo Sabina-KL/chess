@@ -1,10 +1,10 @@
-from pieces import Rook, Pawn, Knight
+from RookCalaulation import RookCalaulation
 
 class PieceFactory:
     @staticmethod
-    def create_piece(piece_type, color):
+    def create_piece(piece_type):
         if piece_type == "rook":
-            return Rook(color)
+            return RookCalaulation()
         # elif piece_type == "pawn":
         #     return Pawn(color)
         # elif piece_type == "knight":

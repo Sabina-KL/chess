@@ -37,15 +37,22 @@ def dummy_api():
     # Route to scan image
 @routes.route('/scan', methods=['POST'])
 def scan_image_route():
-    # Get the image data from the request (JSON body)
-    data = request.get_json()
+    try:
+        # Get the image data from the request (file)
+        file_path = process_image_upload(request)
 
-    # Call the scan_image function and pass the data
-    result = process_image_upload(data, "uploads/")
+        if file_path:
+            # Placeholder scan logic
+            scan_and_create_pieces(file)
+            result = "Scan completed successfully."
+            # You can add actual image processing logic here
+        else:
+            result = "Failed to process the image."
+        
+        return jsonify({"message": result, "file_path": file_path})
 
-    # Return the result of the image scan
-    return jsonify({"message": result})
-
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 
 

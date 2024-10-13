@@ -19,9 +19,9 @@ def calculate_total_area_of_squares(squares):
     return total_area
 
 
-def scan_and_create_pieces(piece_type, color):
+def scan_and_create_pieces(file):
     # Using the factory to create a piece
-    piece = PieceFactory.create_piece(piece_type, color)
+    piece = PieceFactory.create_piece("rook")
 
     # Output the movement logic of the piece
     print(f"Created {piece_type} of color {color}. Movement: {piece.move()}")
