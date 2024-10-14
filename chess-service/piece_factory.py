@@ -1,4 +1,4 @@
-from RookCalaulation import RookCalaulation
+from rookCalculation import RookCalaulation
 
 class PieceFactory:
     @staticmethod

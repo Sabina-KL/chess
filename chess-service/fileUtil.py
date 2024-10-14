@@ -4,6 +4,7 @@ from werkzeug.utils import secure_filename
 # The os module provides a way to interact with the operating system. It includes functions to handle file paths, directories, and other system-level operations.
 import os
 
+
 routes = Blueprint('routes', __name__)
 
 # Path to save uploaded images temporarily (adjust as needed)
@@ -18,6 +19,9 @@ def allowed_file(filename):
 # Function to process the image upload and scan it
 def process_image_upload(req):
     try:
+        if not req:
+            raise ValueError("Bad request")
+
          # Check if 'file' part is in the request
         if 'file' not in req.files:
             raise ValueError("No file part")

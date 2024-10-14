@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 # Abstract class for chess pieces
 class PieceCalculation(ABC):
-    def __init__(self, color):
+    def __init__(self, color = "white"):
         self.color = color  # Each piece will have a color (e.g., 'white' or 'black')
 
     @abstractmethod

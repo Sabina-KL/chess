@@ -4,7 +4,7 @@ from werkzeug.utils import secure_filename
 import os
 from fileUtil import process_image_upload  # Importing your function
 # import requests  # For making requests to another API
-
+from imageScanCalculations import scan_pieces
 
 # Create a blueprint for your routes
 # The Blueprint in Flask is a way to organize your application into reusable components or modules. 
@@ -39,11 +39,14 @@ def dummy_api():
 def scan_image_route():
     try:
         # Get the image data from the request (file)
-        file_path = process_image_upload(request)
+        if request:
+            file_path = process_image_upload(request)
+        else:
+            result = "Failed to process the image."
 
         if file_path:
             # Placeholder scan logic
-            scan_and_create_pieces(file)
+            scan_pieces(file_path)
             result = "Scan completed successfully."
             # You can add actual image processing logic here
         else:
