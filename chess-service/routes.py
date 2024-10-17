@@ -5,6 +5,8 @@ import os
 from fileUtil import process_image_upload  # Importing your function
 # import requests  # For making requests to another API
 from imageScanCalculations import scan_pieces
+import pprint #beautifier library for printing complex objects
+
 
 # Create a blueprint for your routes
 # The Blueprint in Flask is a way to organize your application into reusable components or modules. 
@@ -46,7 +48,9 @@ def scan_image_route():
 
         if file_path:
             # Placeholder scan logic
-            scan_pieces(file_path)
+            pixels_array = scan_pieces(file_path)
+            # pprint.pprint(pixels_array)
+
             result = "Scan completed successfully."
             # You can add actual image processing logic here
         else:

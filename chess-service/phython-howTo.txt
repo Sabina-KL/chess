@@ -8,3 +8,101 @@ if you have a problem with your virtual server: do the following:
    1. lsof -i :5000
    2. kill -9 <PID> (Replace <PID> with the actual process ID you found from the previous step.)
 7. flask run
+
+When Visiual Studido restarts
+==================
+1. for python:
+    * open terminal for "chess-service" folder
+    * run: source venv/bin/activate
+    * the run: run flask
+2. For react:
+    * open "chess-app" folder
+    * npm run
+
+    
+Python debug tools:
+======================================
+1. print():
+
+The simplest way to display variable values for debugging.
+python:
+my_var = {"name": "John", "age": 30}
+print(my_var)
+pprint (Pretty Print):
+
+2. This is useful for printing complex nested data structures like lists and dictionaries in a more readable way.
+python
+import pprint
+
+* my_var = {"name": "John", "age": 30, "address": {"city": "New York", "zip": "10001"}}
+pprint.pprint(my_var)
+repr():
+
+* Returns a string representation of the object, helpful for debugging when you want to see the raw format.
+python
+my_var = {"name": "John", "age": 30}
+print(repr(my_var))
+dir():
+
+* Lists all the attributes and methods of an object, useful for introspection.
+python
+my_var = [1, 2, 3]
+print(dir(my_var))
+vars():
+
+* Returns the __dict__ attribute for an object, i.e., the object's attributes and their values as a dictionary.
+python
+class MyClass:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+obj = MyClass("John", 30)
+print(vars(obj))
+type():
+
+Shows the type of a variable, useful to check what kind of data you're dealing with.
+python
+Copy code
+my_var = [1, 2, 3]
+print(type(my_var))
+logging module:
+
+For more advanced debugging, you can use the logging module to track and log variable states.
+python
+Copy code
+import logging
+logging.basicConfig(level=logging.DEBUG)
+my_var = {"name": "John", "age": 30}
+logging.debug(f'My var: {my_var}')
+breakpoint() / pdb:
+
+You can use Python's built-in debugger (pdb) to pause execution and inspect variables interactively.
+python
+Copy code
+my_var = {"name": "John", "age": 30}
+breakpoint()  # Pauses execution here and opens an interactive debugger
+print(my_var)
+
+
+Common pdb Commands:
+======================================
+p variable_name: Print the value of a variable.
+
+Example: p x will print the value of the variable x.
+n (next): Move to the next line of code within the current function.
+
+This will execute the current line and stop at the next one.
+s (step): Step into the function call.
+
+If the current line contains a function call, s will move into that function.
+c (continue): Continue running the program until the next breakpoint or the end of the program.
+
+This will stop the debugger and resume normal execution.
+q (quit): Exit the debugger and stop the program.
+
+l (list): Show the current location in the source code and a few surrounding lines.
+
+h (help): Display help on commands, or provide help for a specific command.
+
+Example: h n will show help for the n command.

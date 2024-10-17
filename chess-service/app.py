@@ -17,8 +17,10 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from routes import routes  # Import the routes blueprint
 
-
 app = Flask(__name__)
+# force debug mode!
+app.config['DEBUG'] = True
+app.config['ENV'] = 'development'
 
 # Ensure the upload folder exists
 UPLOAD_FOLDER = '/Users/sabina.livny/Desktop/React/chess/chess-service/uploads'  # Specify your desired folder
@@ -41,7 +43,7 @@ def index():
 
 #Run this command if you want to change the port: flask run --port 5001
 if __name__ == '__main__':
-    app.run(debug=True) 
+    app.run(debug=True, port=5001) 
 
 
 
