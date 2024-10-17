@@ -80,6 +80,9 @@ def get_image_pixels(image_path):
     except Exception as e:
         print(f"Error processing image: {str(e)}")
         return []
+    
+# def scan_piece_template_images():
+    
 
 # Open an image file and convert it to a NumPy array
 def get_image_pixels_numpy(image_path):
@@ -100,6 +103,9 @@ def scan_pieces(file):
     squares_pixels = get_image_pixels(file)
     breakpoint()  # Pauses execution here and opens an interactive debugger
     print(pixels_array) #Pdb will open in the terminal, start typing: "p pixels_array"
+    
+    piece.image_pixels = squares_pixels
+    piece.calculate()
     
     return squares_pixels
     # Output the movement logic of the piece
