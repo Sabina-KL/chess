@@ -8,7 +8,7 @@ from imageScanCalculations import scan_pieces
 import pprint #beautifier library for printing complex objects
 
 
-# Create a blueprint for your routes
+# Create a blueprint for your routes f
 # The Blueprint in Flask is a way to organize your application into reusable components or modules. 
 # Instead of defining all your routes directly in the main app.py file, you can use Blueprints to group related routes, which makes your application more modular and easier to maintain.
 routes = Blueprint('routes', __name__)

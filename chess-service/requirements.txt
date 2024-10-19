@@ -1,12 +1,16 @@
 # Flask
 # Flask-CORS
 # python-chess
+#Important! all these competible with python 3.11!
 Flask==2.3.2
 Flask-CORS==3.0.10
 python-chess==1.999
 Werkzeug>=2.3.3
 Pillow==9.5.0
 numpy==1.24.3f
-torch
-torchvision
-torchaudio
+# torch==2.5.0
+# torchvision==0.20.0
+# torchaudio==2.5.0
+torch==2.5.0+cu117 #This ensures that you're installing PyTorch 2.5.0 with CUDA 11.7
+torchvision==0.20.0+cu117
+torchaudio==2.5.0+cu117
