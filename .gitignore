@@ -1,1 +1,13 @@
-node_modules
+# React
+/node_modules
+/build
+
+# Python
+__pycache__
+*.pyc
+.env
+.vscode/
+
+# IDEs and other environment files
+.idea/
+.DS_Store
