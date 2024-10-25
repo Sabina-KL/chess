@@ -1,31 +1,9 @@
-
 from piece_factory import PieceFactory
-import numpy as np #Python script that opens an image and retrieves the RGB values of each pixel
-from PIL import Image #the Pillow library (PIL) to open an image and access its pixel data
+import numpy as np
+from PIL import Image
 import torch
 import torchvision.transforms as transforms
 from my_neural_net import NeuralNet  # Import the pre-trained network
-
-# Resulting pixel data using getpixel() This is the Pillow library structure - PIL array
-# [
-#     (255, 0, 0),    # Pixel at (0,0)
-#     (0, 255, 0),    # Pixel at (1,0)
-#     (0, 0, 255),    # Pixel at (2,0)
-#     (255, 255, 0),  # Pixel at (0,1)
-#     (0, 255, 255),  # Pixel at (1,1)
-#     (255, 0, 255),  # Pixel at (2,1)
-#     (0, 0, 0),      # Pixel at (0,2)
-#     (255, 255, 255),# Pixel at (1,2)
-#     (128, 128, 128) # Pixel at (2,2)
-# ]
-
-# Resulting pixel data using - NumPy library
-# array([
-#     [[255,   0,   0], [  0, 255,   0], [  0,   0, 255]],  # Row 0
-#     [[255, 255,   0], [  0, 255, 255], [255,   0, 255]],  # Row 1
-#     [[  0,   0,   0], [255, 255, 255], [128, 128, 128]]   # Row 2
-# ])
-
 
 # Define the necessary transforms (the same ones used during training)
 new_transform = transforms.Compose(
@@ -72,7 +50,7 @@ def get_image_pixels_to_tensor(image_path):
         # Convert the image to RGB (if it's not already)
         img = img.convert("RGB")
 
-        # Resize the image to 880X880
+        # Resize the image to 880x880
         img = img.resize((880, 880))
         
         # Get the width and height of the image
@@ -108,7 +86,7 @@ def get_image_pixels_to_tensor(image_path):
                         normalized_pixel = [(p / 255.0 - 0.5) / 0.5 for p in pixel]
                         square_pixels.append(normalized_pixel)
                 
-                 # Convert the square pixel data to a torch tensor of shape (square_height, square_width, 3)
+                # Convert the square pixel data to a torch tensor of shape (square_height, square_width, 3)
                 square_tensor = torch.tensor(square_pixels).view(square_height, square_width, 3)
                 # Transpose to get shape (3, square_height, square_width)
                 square_tensor = square_tensor.permute(2, 0, 1)
@@ -123,9 +101,6 @@ def get_image_pixels_to_tensor(image_path):
     except Exception as e:
         print(f"Error processing image: {str(e)}")
         return []
-    
-# def scan_piece_template_images():
-    
 
 # Open an image file and convert it to a NumPy array
 def get_image_pixels_numpy(image_path):
@@ -155,7 +130,18 @@ def scan_pieces(file):
     piece.calculate()
     
     return squares_tensors
-    # Output the movement logic of the piece
-    print(f"Created rook.")
 
+def execute():
+    # Example usage - replace with your image path or logic
+    image_path = 'path_to_your_image_file.png'  # Change this to your image path
+    squares_tensors = get_image_pixels_to_tensor(image_path)
+    if squares_tensors is not None:
+        model = load_model()  # Load the pre-trained model
+        predicted_class = predict(squares_tensors, model)  # Make the prediction
 
+        # Print the class name
+        class_names = ['kw', 'qw', 'rw', 'bw', 'kw', 'pw', 'kb', 'qb', 'rb', 'bb', 'kb', 'pb']
+        print(f"Predicted Class: {class_names[predicted_class]}")
+
+if __name__ == "__main__":
+    execute()

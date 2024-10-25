@@ -9,7 +9,26 @@ if you have a problem with your virtual server: do the following:
    2. kill -9 <PID> (Replace <PID> with the actual process ID you found from the previous step.)
 7. flask run
 
-When Visiual Studido restarts
+Install CUDA for nueral training (for Ubuntu)
+==================
+1. On your system terminal (not the project - use the comp ) - install invidia driver
+2. sudo apt install nvidia-driver-<latest-version>
+3. sudo dpkg -i cuda-repo-<distro>_<version>_amd64.deb
+    sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu<version>/x86_64/7fa2af80.pub
+    sudo apt update
+    sudo apt install cuda
+4. Set Environment Variables (Linux)
+    echo 'export PATH=/usr/local/cuda/bin:$PATH' >> ~/.bashrc
+    echo 'export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
+    source ~/.bashrc
+5. Step 5: Verify CUDA Installation
+    nvcc --version
+6. Step 6: Install PyTorch with CUDA
+    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu<XX>
+
+
+
+When Visiual Studio restarts
 ==================
 1. for python:
     * open terminal for "chess-service" folder
