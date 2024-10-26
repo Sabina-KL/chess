@@ -123,7 +123,7 @@ def scan_pieces(file):
     predicted_class = predict(squares_tensors, model)  # Make the prediction
 
     # Print the class name
-    class_names = ['kw', 'qw', 'rw', 'bw', 'kw', 'pw', 'kb', 'qb', 'rb', 'bb', 'kb', 'pb']
+    class_names = ['king', 'queen', 'rook', 'bishop', 'knight', 'pawn']
     print(f"Predicted Class: {class_names[predicted_class]}")
     
     piece.image_pixels = squares_tensors
@@ -140,7 +140,7 @@ def execute():
         predicted_class = predict(squares_tensors, model)  # Make the prediction
 
         # Print the class name
-        class_names = ['kw', 'qw', 'rw', 'bw', 'kw', 'pw', 'kb', 'qb', 'rb', 'bb', 'kb', 'pb']
+        class_names = ['king', 'queen', 'rook', 'bishop', 'knight', 'pawn']
         print(f"Predicted Class: {class_names[predicted_class]}")
 
 if __name__ == "__main__":
