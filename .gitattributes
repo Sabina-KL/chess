@@ -1,3 +1,6 @@
 chess-service/venv/lib/python3.11/site-packages/torch/lib/libtorch_cpu.dylib filter=lfs diff=lfs merge=lfs -text
 chess-service/data/cifar-10-python.tar.gz filter=lfs diff=lfs merge=lfs -text
 chess-service/src/assets/templates/cifar-10-python.tar.gz filter=lfs diff=lfs merge=lfs -text
+chess-service/venv/lib/python3.11/site-packages/matplotlib/** filter=lfs diff=lfs merge=lfs -text
+chess-service/venv/lib/python3.11/site-packages/sklearn/** filter=lfs diff=lfs merge=lfs -text
+chess-service/venv/lib/python3.11/site-packages/seaborn/** filter=lfs diff=lfs merge=lfs -text
