@@ -7,8 +7,11 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from PIL import Image
 import random
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
 
-
+# The RandomCutout transform is a form of data augmentation where a small, randomly located rectangular section of an image is masked (set to zero). This technique can help your neural network become more robust by forcing it to rely on different parts of the image to make predictions rather than focusing on a particular area.
 class RandomCutout:
     """Custom transform for randomly masking out sections of an image"""
     def __init__(self, mask_size):
@@ -30,7 +33,8 @@ class NeuralNet(nn.Module):
         # Layer 1
         self.conv1 = nn.Sequential(nn.Conv2d(3, 32,3),
                                    nn.ReLU(),
-                                   nn.MaxPool2d(3, 2))
+                                   nn.MaxPool2d(3, 2),
+                                   nn.Dropout(0.3)) #maybe redundent
         # Layer 2
         self.conv2d_2 = nn.Conv2d(32, 64, (3,3))
         self.relu_2 = nn.ReLU()
@@ -70,7 +74,14 @@ class NeuralNet(nn.Module):
         # x = F.relu(self.fc2(x))
         # x = self.fc3(x)
         # return x
-
+        
+def plot_confusion_matrix(cm, class_names):
+    plt.figure(figsize=(10, 7))
+    sns.heatmap(cm, annot=True, fmt='d', cmap="Blues", xticklabels=class_names, yticklabels=class_names)
+    plt.xlabel('Predicted')
+    plt.ylabel('True')
+    plt.title('Confusion Matrix')
+    plt.show()
 
 def main():
     print("Main block is running")
@@ -90,8 +101,18 @@ def main():
         # transforms.RandomRotation(degrees=15),
         # transforms.ColorJitter(brightness=0.5, contrast=0.5, saturation=0.5, hue=0.1),
         transforms.ToTensor(),
-        # RandomCutout(mask_size=10),
+        RandomCutout(mask_size=10),
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        
+        # consider more extra augmentation
+    #     transforms.Resize([224, 224]),
+    # transforms.RandomResizedCrop(224, scale=(0.8, 1.0)),
+    # transforms.RandomHorizontalFlip(),
+    # transforms.RandomRotation(degrees=15),
+    # transforms.ColorJitter(brightness=0.5, contrast=0.5, saturation=0.5, hue=0.1),
+    # transforms.RandomAffine(degrees=0, translate=(0.1, 0.1)),  # Translation
+    # transforms.ToTensor(),
+    # transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
     ])
     
     from_google_drive = False
@@ -117,6 +138,9 @@ def main():
     train_data = torchvision.datasets.ImageFolder(root=train_data_path, transform=transform)
     test_data = torchvision.datasets.ImageFolder(root=test_data_path, transform=transform)
 
+    # Loading Class Names Dynamically (from a folder structure): If you're using torchvision.datasets.ImageFolder to load images, it will automatically assign train_data.classes based on the folder names. This works if your data folder structure is
+    print("Class names:", train_data.classes)  # Check that classes are defined
+    
     # Download CIFAR-10 dataset
     #     CIFAR10:
     # This is a pre-defined dataset class specifically for the CIFAR-10 dataset, which is a popular image dataset for machine learning benchmarks.
@@ -205,11 +229,17 @@ def main():
 
     # Manual flag for evaluating the model
     evaluate_model = True  # Set to False to skip evaluation
-
+    
+    # List of class names
+    class_names = train_data.classes 
+    
     if evaluate_model:
         net.eval()
         correct = 0
         total = 0
+        all_labels = []
+        all_predictions = []
+        
         with torch.no_grad():
             for data in test_loader:
                 images, labels = data
@@ -218,7 +248,13 @@ def main():
                 _, predicted = torch.max(outputs, 1)
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
+                all_labels.extend(labels.cpu().numpy())
+                all_predictions.extend(predicted.cpu().numpy())
 
+        # Compute confusion matrix
+        cm = confusion_matrix(all_labels, all_predictions)
+        plot_confusion_matrix(cm, class_names)
+        
         accuracy = 100 * correct / total
         print(f'Accuracy: {accuracy:.2f}%')
 

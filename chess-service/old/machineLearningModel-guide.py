@@ -208,8 +208,8 @@ image_paths = ['example1/jpg', 'exam[le_2.jpg]']
 images = [image_paths(img) for img in image_paths]
 
 net.eval()
-with tourch.no_grad():
+with torch.no_grad():
     for image in images:
         output = new(image)
-         _, predicted = tourch.max(outputs, 1)
+         _, predicted = torch.max(outputs, 1)
          print(f'Predictions : {class_names[predicted.items()]}')

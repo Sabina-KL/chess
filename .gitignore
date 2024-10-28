@@ -11,3 +11,9 @@ __pycache__
 # IDEs and other environment files
 .idea/
 .DS_Store
+
+
+# Ignore large library files if they exist
+**/matplotlib/*
+**/scikit-learn/*
+**/seaborn/*

@@ -1,39 +1,48 @@
 from piece_factory import PieceFactory
 import numpy as np
 from PIL import Image
+from itertools import product
+import os  # Import the os module
 import torch
 import torchvision.transforms as transforms
 from my_neural_net import NeuralNet  # Import the pre-trained network
 
-# Define the necessary transforms (the same ones used during training)
-new_transform = transforms.Compose(
-    [
-        transforms.Resize((880, 880)),
+# Make a prediction using the model
+def predict(images):
+    transform = transforms.Compose([
+        transforms.Resize([224,224]),
+        # transforms.RandomResizedCrop((110, 110), scale=(0.8, 1.0)),
+        transforms.RandomHorizontalFlip(),
+        # transforms.RandomRotation(degrees=15),
+        # transforms.ColorJitter(brightness=0.5, contrast=0.5, saturation=0.5, hue=0.1),
         transforms.ToTensor(),
-        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-    ]
-)
-
-# Load the trained model
-def load_model():
+        # RandomCutout(mask_size=10),
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+    ])
+    
+    predicted_classes = []
+    
+    
     model = NeuralNet()
     model.load_state_dict(torch.load('trained_net.pth'))  # Load the saved weights
-    model.eval()  # Set the model to evaluation mode
-    return model
-
-# Load and transform the image into a tensor
-def load_image(image_path):
-    image = Image.open(image_path)
-    image = new_transform(image)  # Apply the transformation
-    image = image.unsqueeze(0)  # Add a batch dimension
-    return image
-
-# Make a prediction using the model
-def predict(image_tensor, model):
+    model.eval()  # Set model to evaluation mode
+    
     with torch.no_grad():  # Disable gradient calculation
-        output = model(image_tensor)  # Forward pass
-        _, predicted_class = torch.max(output, 1)  # Get the predicted class
-    return predicted_class.item()  # Return the class index
+        for image_path in images:
+            # Load the image and apply transformations
+            img = Image.open(image_path).convert('RGB')
+            # transform function, often a set of operations like resizing, normalizing, or converting the image to a tensor.
+            img = transform(img)
+            #unsqueeze(0) adds a batch dimension to the tensor. PyTorch models typically expect input in the shape of (batch_size, channels, height, width). Here, img is likely a tensor with shape (C, H, W), and unsqueeze(0) changes its shape to (1, C, H, W), where 1 represents a batch size of 1.
+            img = img.unsqueeze(0)  # Add batch dimension (1, C, H, W)
+
+            # Move the image to the device used by the model - This moves the image tensor to the same device (CPU or GPU) as the model. next(model.parameters()).device fetches the device type (e.g., cuda:0 for the first GPU) from the model’s parameters, ensuring that the input tensor is compatible with the model during inference or training
+            img = img.to(next(model.parameters()).device)
+            output = model(img)  # Forward pass
+            _, predicted_class = torch.max(output, 1)  # Get the predicted class
+            predicted_classes.append(predicted_class.item())
+
+    return predicted_classes  # Return list of predicted class indices
 
 def scan_image(data):
     # Perform image scan logic here
@@ -41,9 +50,13 @@ def scan_image(data):
     result = f"Scanned image with data: {data}"
     return result
 
+def delete_temp_images():
+    print(f"Deleeting images after scan complete")
+
 # Open an image file PIL array
-def get_image_pixels_to_tensor(image_path):
+def get_images_cropped(image_path):
     try:
+        save_dir = 'temp'
         # Open the image
         img = Image.open(image_path)
         
@@ -51,7 +64,7 @@ def get_image_pixels_to_tensor(image_path):
         img = img.convert("RGB")
 
         # Resize the image to 880x880
-        img = img.resize((880, 880))
+        img = img.resize((1792, 1792))
         
         # Get the width and height of the image
         width, height = img.size
@@ -64,39 +77,25 @@ def get_image_pixels_to_tensor(image_path):
         square_width = width // 8
         square_height = height // 8
 
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+
         # List to store pixel data for each square (tensor)
         squares = []
 
         # Loop through each square (row and column)
-        for row in range(8):
-            for col in range(8):
-                square_pixels = []
-                
-                # Get the starting and ending coordinates for the current square
-                start_x = col * square_width
-                start_y = row * square_height
-                end_x = start_x + square_width
-                end_y = start_y + square_height
+        # This is croping an image 
+        for col in range(0, width, square_width):
+            for row in range(0, height, square_height):
+                box = (col, row, col + square_width, row + square_height)
+                cropped_square = img.crop(box)
+                file_path = os.path.join(save_dir, f'micro_{col}_{row}.jpg')
+                cropped_square.save(file_path)
 
-                # Loop through the pixels in the current square
-                for y in range(start_y, end_y):
-                    for x in range(start_x, end_x):
-                        pixel = img.getpixel((x, y))  # Get the pixel's RGB values
-                        # Normalize the pixel values to [-1, 1]
-                        normalized_pixel = [(p / 255.0 - 0.5) / 0.5 for p in pixel]
-                        square_pixels.append(normalized_pixel)
-                
-                # Convert the square pixel data to a torch tensor of shape (square_height, square_width, 3)
-                square_tensor = torch.tensor(square_pixels).view(square_height, square_width, 3)
-                # Transpose to get shape (3, square_height, square_width)
-                square_tensor = square_tensor.permute(2, 0, 1)
-                
-                # Add the current square's tensor data to the squares list
-                squares.append(square_tensor)
-                
-        # Stack the list of square tensors to create a batch of 64 squares
-        squares_tensor = torch.stack(squares)
-        return squares_tensor  # A tensor containing the 64 squares, shape (64, 3, square_height, square_width)
+                # Append the file path to squares list
+                squares.append(file_path)
+               
+        return squares
 
     except Exception as e:
         print(f"Error processing image: {str(e)}")
@@ -117,31 +116,26 @@ def scan_pieces(file):
     piece = PieceFactory.create_piece("rook")
     piece.file = file  # This will trigger the setter
 
-    squares_tensors = get_image_pixels_to_tensor(file)
+    squares_images = get_images_cropped(file)
     # You can call this to predict the class based on the processed image
-    model = load_model()  # Load the pre-trained model
-    predicted_class = predict(squares_tensors, model)  # Make the prediction
+    predicted_classes = predict(squares_images)  # Make the prediction
 
     # Print the class name
-    class_names = ['king', 'queen', 'rook', 'bishop', 'knight', 'pawn']
-    print(f"Predicted Class: {class_names[predicted_class]}")
+    class_names = ['Queen-Resized', 'Rook-resize', 'bishop-resized', 'knight-resize', 'pawn-resized']
+    # Print the predicted classes for all images
+    for index, predicted_class in enumerate(predicted_classes):
+        # Ensure the predicted_class index is within the range of class_names
+        if predicted_class < len(class_names):
+            print(f"Predicted Class for square {index + 1}: {class_names[predicted_class]}")
+        else:
+            print(f"Predicted Class for square {index + 1}: Unknown class (index {predicted_class})")
+
+    # print(f"Predicted Class: {class_names[predicted_class]}")
     
-    piece.image_pixels = squares_tensors
-    piece.calculate()
+    # see about assigning more weights to class classification
+#     class_counts = [100, 200, 300, 400, 50, 250]  # Example class counts
+# class_weights = 1. / torch.tensor(class_counts, dtype=torch.float)
+# criterion = nn.CrossEntropyLoss(weight=class_weights)
     
-    return squares_tensors
-
-def execute():
-    # Example usage - replace with your image path or logic
-    image_path = 'path_to_your_image_file.png'  # Change this to your image path
-    squares_tensors = get_image_pixels_to_tensor(image_path)
-    if squares_tensors is not None:
-        model = load_model()  # Load the pre-trained model
-        predicted_class = predict(squares_tensors, model)  # Make the prediction
-
-        # Print the class name
-        class_names = ['king', 'queen', 'rook', 'bishop', 'knight', 'pawn']
-        print(f"Predicted Class: {class_names[predicted_class]}")
-
-if __name__ == "__main__":
-    execute()
+    
+    return squares_images
