@@ -45,19 +45,13 @@ def predict(images):
 
     return predicted_classes  # Return list of predicted class indices
 
-def scan_image(data):
-    # Perform image scan logic here
-    # `data` could be a list of pixel values or any other image-related data
-    result = f"Scanned image with data: {data}"
-    return result
-
 def delete_temp_images():
     print(f"Deleeting images after scan complete")
 
 # Open an image file PIL array
 def get_images_cropped(image_path):
     try:
-        save_dir = 'temp'
+        save_dir = 'uploads'
         # Open the image
         img = Image.open(image_path)
         
@@ -104,16 +98,6 @@ def get_images_cropped(image_path):
         print(f"Error processing image: {str(e)}")
         return []
 
-# Open an image file and convert it to a NumPy array
-def get_image_pixels_numpy(image_path):
-    try:
-        img = Image.open(image_path).convert("RGB")
-        img_array = np.array(img)  # Convert to a NumPy array
-        return img_array
-    except Exception as e:
-        print(f"Error processing image: {str(e)}")
-        return None
-
 def scan_pieces(file):
     # Using the factory to create a piece
     piece = PieceFactory.create_piece("rook")
@@ -132,13 +116,5 @@ def scan_pieces(file):
             print(f"Predicted Class for square {index + 1}: {class_names[predicted_class]}")
         else:
             print(f"Predicted Class for square {index + 1}: Unknown class (index {predicted_class})")
-
-    # print(f"Predicted Class: {class_names[predicted_class]}")
-    
-    # see about assigning more weights to class classification
-#     class_counts = [100, 200, 300, 400, 50, 250]  # Example class counts
-# class_weights = 1. / torch.tensor(class_counts, dtype=torch.float)
-# criterion = nn.CrossEntropyLoss(weight=class_weights)
-    
-    
+            
     return squares_images

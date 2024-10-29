@@ -17,6 +17,23 @@ SQUARE_HEIGHT = 135 # 224
 # Define your class names
 CLASS_NAMES = ['bishop', 'empty', 'king', 'knight', 'pawn', 'queen', 'rook']
 
+
+
+# The RandomCutout transform is a form of data augmentation where a small, randomly located rectangular section of an image is masked (set to zero). This technique can help your neural network become more robust by forcing it to rely on different parts of the image to make predictions rather than focusing on a particular area.
+class RandomCutout:
+    """Custom transform for randomly masking out sections of an image"""
+    def __init__(self, mask_size):
+        self.mask_size = mask_size
+
+    def __call__(self, img):
+        # Choose random mask location
+        mask_x = random.randint(0, img.size(1) - self.mask_size)
+        mask_y = random.randint(0, img.size(2) - self.mask_size)
+        
+        # Apply mask
+        img[:, mask_x:mask_x + self.mask_size, mask_y:mask_y + self.mask_size] = 0
+        return img
+    
 class NeuralNet(nn.Module):
     def __init__(self):
         super(NeuralNet, self).__init__()
@@ -57,6 +74,97 @@ class NeuralNet(nn.Module):
         x = self.fc2(x)
         return x
 
+
+class NeuralNet_old(nn.Module):
+    def __init__(self):
+        super(NeuralNet, self).__init__()
+        # Layer 1
+        self.conv1 = nn.Sequential(nn.Conv2d(3, 32,3),
+                                   nn.ReLU(),
+                                   nn.MaxPool2d(3, 2))
+        # Layer 2
+        self.conv2d_2 = nn.Conv2d(32, 64, (3,3))
+        self.relu_2 = nn.ReLU()
+        self.maxpool_2 = nn.MaxPool2d(3, 2)
+        # Layer 3
+        self.fc1 = nn.Linear(179776, 32)
+        self.fc2 = nn.Linear(32, CATEGORY_CLASSES)
+        
+        # self.conv1 = nn.Conv2d(3, 12, 5)
+        # self.pool = nn.MaxPool2d(2, 2)
+        # self.conv2 = nn.Conv2d(12, 24, 5)
+        # self.fc1 = nn.Linear(24 * 24 * 24, 120)
+        # self.fc2 = nn.Linear(120, 84)
+        # self.fc3 = nn.Linear(84, 7)  # Adjust output to match number of classes
+        
+        # # Convolutional and Pooling Layers
+        # self.conv1 = nn.Conv2d(3, 12, kernel_size=5)
+        # self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
+        # self.conv2 = nn.Conv2d(12, 24, kernel_size=5)
+        # # Calculate the flattened dimension after conv2 and pool
+        # # Input: 224x224 -> Conv1: 220x220 -> Pool: 110x110
+        # # Conv2: 106x106 -> Pool: 53x53
+        # flattened_dim = 24 * 53 * 53
+        # # Fully Connected Layers
+        # self.fc1 = nn.Linear(flattened_dim, 120)
+        # self.fc2 = nn.Linear(120, 84)
+        # self.fc3 = nn.Linear(84, 7)  # Output layer for 7 classes
+        
+        # # Layer 1
+        # self.conv1 = nn.Sequential(
+        #     nn.Conv2d(3, 32, 3), nn.ReLU(), nn.MaxPool2d(3, 2)
+        # )
+        # # Layer 2
+        # self.conv2 = nn.Sequential(
+        #     nn.Conv2d(32, 64, 3), nn.ReLU(), nn.MaxPool2d(3, 2)
+        # )
+        # # Additional Layer 3
+        # self.conv3 = nn.Sequential(
+        #     nn.Conv2d(64, 128, 3), nn.ReLU(), nn.MaxPool2d(3, 2)
+        # )
+        # # Fully Connected Layers
+        # self.flatten = nn.Flatten()
+        # self.fc1 = nn.Linear(128 * 25 * 25, 64)  # Adjusted for calculated dimension
+        # self.fc2 = nn.Linear(64, 7)
+
+    def forward(self, x):
+        # Layer 1
+        y = self.conv1(x)
+        # Layer 2
+        y = self.conv2d_2(y)
+        y = self.relu_2(y)
+        y = self.maxpool_2(y)
+        # Layer 3
+        y = y.view(y.size(0), -1) 
+        y = self.fc1(y)
+        y = self.fc2(y)
+        return y
+    
+        # x = self.pool(F.relu(self.conv1(x)))
+        # x = self.pool(F.relu(self.conv2(x)))
+        # x = torch.flatten(x, 1)
+        # x = F.relu(self.fc1(x))
+        # x = F.relu(self.fc2(x))
+        # x = self.fc3(x)
+        # return x
+        
+        # x = self.pool(nn.ReLU()(self.conv1(x)))
+        # x = self.pool(nn.ReLU()(self.conv2(x)))
+        # x = x.view(-1, 24 * 53 * 53)  # Flatten
+        # x = nn.ReLU()(self.fc1(x))
+        # x = nn.ReLU()(self.fc2(x))
+        # x = self.fc3(x)
+        # return x
+        
+        # x = self.conv1(x)
+        # x = self.conv2(x)
+        # x = self.conv3(x)
+        # x = self.flatten(x)
+        # x = self.fc1(x)
+        # x = nn.ReLU()(x)
+        # x = self.fc2(x)
+        # return x
+        
 def plot_confusion_matrix(cm, class_names):
     plt.figure(figsize=(10, 7))
     sns.heatmap(cm, annot=True, fmt='d', cmap="Blues", xticklabels=class_names, yticklabels=class_names)
@@ -100,9 +208,23 @@ def main():
     # Define transformations with various augmentations
     transform = transforms.Compose([
         transforms.Resize([SQUARE_WIDTH ,SQUARE_HEIGHT]),
+        # transforms.RandomResizedCrop((224, 224), scale=(0.8, 1.0)),
         transforms.RandomHorizontalFlip(),
+        # transforms.RandomRotation(degrees=15),
+        # transforms.ColorJitter(brightness=0.5, contrast=0.5, saturation=0.5, hue=0.1),
         transforms.ToTensor(),
+        # RandomCutout(mask_size=10),
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        
+        # consider more extra augmentation
+    #     transforms.Resize([224, 224]),
+    # transforms.RandomResizedCrop(224, scale=(0.8, 1.0)),
+    # transforms.RandomHorizontalFlip(),
+    # transforms.RandomRotation(degrees=15),
+    # transforms.ColorJitter(brightness=0.5, contrast=0.5, saturation=0.5, hue=0.1),
+    # transforms.RandomAffine(degrees=0, translate=(0.1, 0.1)),  # Translation
+    # transforms.ToTensor(),
+    # transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
     ])
     
     from_google_drive = False
@@ -132,6 +254,14 @@ def main():
     set_classes(train_data)
     print("Class names:", get_classes())  # Check that classes are defined
     
+    # Download CIFAR-10 dataset
+    #     CIFAR10:
+    # This is a pre-defined dataset class specifically for the CIFAR-10 dataset, which is a popular image dataset for machine learning benchmarks.
+    # CIFAR10 automatically downloads the CIFAR-10 dataset if it’s not already available in the specified directory (through the download=True argument).
+    # The dataset has 10 classes, and the labels are automatically included (you don’t need to specify subfolders for each class).
+    # train_data = torchvision.datasets.CIFAR10(root=train_data_path, train=True, transform=transform, download=True)
+    # test_data = torchvision.datasets.CIFAR10(root=test_data_path, train=False, transform=transform, download=True)
+
     # DataLoader for GPU
     train_loader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=4)
     test_loader = torch.utils.data.DataLoader(test_data, batch_size=batch_size, shuffle=True, num_workers=4)

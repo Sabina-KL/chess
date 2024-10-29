@@ -14,9 +14,9 @@ import pprint #beautifier library for printing complex objects
 routes = Blueprint('routes', __name__)
 
 # Dummy API route
-@routes.route('/dummy', methods=['GET'])
-def dummy_api():
-    return jsonify({"message": "Hello from the Flask API!", "status": "success"}), 200
+# @routes.route('/dummy', methods=['GET'])
+# def dummy_api():
+#     return jsonify({"message": "Hello from the Flask API!", "status": "success"}), 200
 
 #examples:
 # @routes.route('/greet', methods=['GET'])
@@ -60,14 +60,3 @@ def scan_image_route():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 400
-
-
-
-# # Route to get image details by ID
-# @routes.route('/image/<int:image_id>', methods=['GET'])
-# def get_image(image_id):
-#     # Call the get_image_details function and pass the image_id
-#     image_details = get_image_details(image_id)
-#     scan_and_create_pieces('rook', 'white')
-#     # Return the image details as JSON
-#     return jsonify(image_details)
