@@ -14,6 +14,10 @@ import seaborn as sns
 CATEGORY_CLASSES = 7
 SQUARE_WIDTH = 135 # 224
 SQUARE_HEIGHT = 135 # 224
+# Define your class names
+CLASS_NAMES = ['bishop', 'empty', 'king', 'knight', 'pawn', 'queen', 'rook']
+
+
 
 # The RandomCutout transform is a form of data augmentation where a small, randomly located rectangular section of an image is masked (set to zero). This technique can help your neural network become more robust by forcing it to rely on different parts of the image to make predictions rather than focusing on a particular area.
 class RandomCutout:
@@ -172,20 +176,22 @@ def plot_confusion_matrix(cm, class_names):
 # Initialize a global variable to store classes
 _global_classes = None
 
-# Setter function to set classes
+# Setter function to set classesdef set_classes(train_data):
 def set_classes(train_data):
     global _global_classes
     if hasattr(train_data, 'classes'):
         _global_classes = train_data.classes
+        print("Classes set successfully:", _global_classes)
     else:
         raise AttributeError("train_data does not have a 'classes' attribute")
+
 
 # Getter function to get classes
 def get_classes():
     if _global_classes is not None:
         return _global_classes
     else:
-        raise ValueError("Classes have not been set. Please use set_classes() to define them first.")
+        return CLASS_NAMES
  
 def main():
     print("Main block is running")
@@ -197,7 +203,7 @@ def main():
     batch_size = 8 #64
     step_size = 7 #10
     
-    epoch_max = 40;
+    epoch_max = 40
 
     # Define transformations with various augmentations
     transform = transforms.Compose([
