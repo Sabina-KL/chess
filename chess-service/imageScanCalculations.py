@@ -18,7 +18,6 @@ def predict(images):
     
     predicted_classes = []
     
-    
     model = NeuralNet()
     model.load_state_dict(torch.load('trained_net.pth'))  # Load the saved weights
     model.eval()  # Set model to evaluation mode
@@ -36,7 +35,12 @@ def predict(images):
             img = img.to(next(model.parameters()).device)
             output = model(img)  # Forward pass
             _, predicted_class = torch.max(output, 1)  # Get the predicted class
-            predicted_classes.append(predicted_class.item())
+            
+            # Append both file name and predicted class as a tuple or dictionary
+            predicted_classes.append({
+                'file_name': image_path,
+                'predicted_class': predicted_class.item()
+            })
 
     return predicted_classes  # Return list of predicted class indices
 
@@ -79,9 +83,8 @@ def get_images_cropped(image_path):
             for row in range(0, height, square_height):
                 box = (col, row, col + square_width, row + square_height)
                 cropped_square = img.crop(box)
-                random_number = random.randint(1000, 9999)  # You can adjust the range if needed
 
-                file_path = os.path.join(save_dir, f'micro_{col}_{row}_{random_number}.jpg')
+                file_path = os.path.join(save_dir, f'micro_{col}_{row}.jpg')
                 cropped_square.save(file_path)
 
                 # Append the file path to squares list
@@ -96,16 +99,31 @@ def get_images_cropped(image_path):
 def scan_pieces(file):
     squares_images = get_images_cropped(file)
     # You can call this to predict the class based on the processed image
-    predicted_classes = predict(squares_images)  # Make the prediction
+    predicted_pieces = predict(squares_images)  # Make the prediction
 
     # Print the class name
     class_names = get_classes() #['queen', 'rook', 'bishop', 'knight', 'pawn', 'king', 'empty']
-    # Print the predicted classes for all images
-    for index, predicted_class in enumerate(predicted_classes):
-        # Ensure the predicted_class index is within the range of class_names
-        if predicted_class < len(class_names):
-            print(f"Predicted Class for square {index + 1}: {class_names[predicted_class]}")
+    
+    # Initialize an empty dictionary to store the results
+    predictions = {}
+    
+     # Populate predictions dictionary with file names and predicted classes
+    for index, predicted_piece in enumerate(predicted_pieces):
+        # Check if the predicted class index is valid within class_names
+        if predicted_piece['predicted_class'] < len(class_names):
+            class_name = class_names[predicted_piece['predicted_class']]
         else:
-            print(f"Predicted Class for square {index + 1}: Unknown class (index {predicted_class})")
-            
-    return squares_images
+            class_name = "Unknown Piece"
+        
+        # Store in dictionary using the square index as the key
+        predictions[index + 1] = {
+            'file_name': predicted_piece['file_name'],
+            'predicted_class': class_name
+        }
+        
+        # Print each prediction for verification
+        print(f"Predicted Class for square {index + 1}: {class_name}")
+        
+        # TODO: delete files after prediction is done
+    
+    return predictions

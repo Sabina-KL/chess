@@ -48,15 +48,14 @@ def scan_image_route():
 
         if file_path:
             # Placeholder scan logic
-            pixels_array = scan_pieces(file_path)
-            # pprint.pprint(pixels_array)
+            chess_piece_predictions = scan_pieces(file_path)
 
             result = "Scan completed successfully."
             # You can add actual image processing logic here
         else:
             result = "Failed to process the image."
         
-        return jsonify({"message": result, "file_path": file_path})
+        return jsonify({"data": chess_piece_predictions})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 400
