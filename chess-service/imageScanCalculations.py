@@ -1,4 +1,3 @@
-from piece_factory import PieceFactory
 import random
 import numpy as np
 from PIL import Image
@@ -12,12 +11,8 @@ from my_neural_net import NeuralNet, get_classes, SQUARE_WIDTH ,SQUARE_HEIGHT  #
 def predict(images):
     transform = transforms.Compose([
         transforms.Resize([SQUARE_WIDTH ,SQUARE_HEIGHT]),
-        # transforms.RandomResizedCrop((110, 110), scale=(0.8, 1.0)),
         transforms.RandomHorizontalFlip(),
-        # transforms.RandomRotation(degrees=15),
-        # transforms.ColorJitter(brightness=0.5, contrast=0.5, saturation=0.5, hue=0.1),
         transforms.ToTensor(),
-        # RandomCutout(mask_size=10),
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
     ])
     
@@ -99,10 +94,6 @@ def get_images_cropped(image_path):
         return []
 
 def scan_pieces(file):
-    # Using the factory to create a piece
-    piece = PieceFactory.create_piece("rook")
-    piece.file = file  # This will trigger the setter
-
     squares_images = get_images_cropped(file)
     # You can call this to predict the class based on the processed image
     predicted_classes = predict(squares_images)  # Make the prediction
