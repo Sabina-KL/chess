@@ -1,16 +1,17 @@
 from piece_factory import PieceFactory
+import random
 import numpy as np
 from PIL import Image
 from itertools import product
 import os  # Import the os module
 import torch
 import torchvision.transforms as transforms
-from my_neural_net import NeuralNet  # Import the pre-trained network
+from my_neural_net import NeuralNet, get_classes, SQUARE_WIDTH ,SQUARE_HEIGHT  # Import the pre-trained network
 
 # Make a prediction using the model
 def predict(images):
     transform = transforms.Compose([
-        transforms.Resize([224,224]),
+        transforms.Resize([SQUARE_WIDTH ,SQUARE_HEIGHT]),
         # transforms.RandomResizedCrop((110, 110), scale=(0.8, 1.0)),
         transforms.RandomHorizontalFlip(),
         # transforms.RandomRotation(degrees=15),
@@ -64,7 +65,7 @@ def get_images_cropped(image_path):
         img = img.convert("RGB")
 
         # Resize the image to 880x880
-        img = img.resize((1792, 1792))
+        img = img.resize((SQUARE_WIDTH * 8 ,SQUARE_HEIGHT * 8))
         
         # Get the width and height of the image
         width, height = img.size
@@ -89,7 +90,9 @@ def get_images_cropped(image_path):
             for row in range(0, height, square_height):
                 box = (col, row, col + square_width, row + square_height)
                 cropped_square = img.crop(box)
-                file_path = os.path.join(save_dir, f'micro_{col}_{row}.jpg')
+                random_number = random.randint(1000, 9999)  # You can adjust the range if needed
+
+                file_path = os.path.join(save_dir, f'micro_{col}_{row}_{random_number}.jpg')
                 cropped_square.save(file_path)
 
                 # Append the file path to squares list
@@ -121,7 +124,7 @@ def scan_pieces(file):
     predicted_classes = predict(squares_images)  # Make the prediction
 
     # Print the class name
-    class_names = ['Queen-Resized', 'Rook-resize', 'bishop-resized', 'knight-resize', 'pawn-resized']
+    class_names = get_classes() #['queen', 'rook', 'bishop', 'knight', 'pawn', 'king', 'empty']
     # Print the predicted classes for all images
     for index, predicted_class in enumerate(predicted_classes):
         # Ensure the predicted_class index is within the range of class_names
