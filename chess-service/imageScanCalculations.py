@@ -44,6 +44,7 @@ def predict(images):
 
     return predicted_classes  # Return list of predicted class indices
 
+# TODO: implement images delete after scaN OR set them as temporary files
 def delete_temp_images():
     print(f"Deleeting images after scan complete")
 

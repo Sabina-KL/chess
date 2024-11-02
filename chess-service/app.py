@@ -18,8 +18,8 @@ from flask_cors import CORS
 from routes import routes  # Import the routes blueprint
 
 app = Flask(__name__)
-# force debug mode!
-app.config['DEBUG'] = True
+# force debug mode! - switch to true if you want to debug
+app.config['DEBUG'] = False
 app.config['ENV'] = 'development'
 
 # Ensure the upload folder exists
