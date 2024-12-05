@@ -17,6 +17,9 @@ SQUARE_HEIGHT = 135 # 224
 # Define your class names
 CLASS_NAMES = ['bishop', 'empty', 'king', 'knight', 'pawn', 'queen', 'rook']
 
+# Tensors = 
+# In the context of machine learning and deep learning, a tensor is a mathematical object that generalizes scalars, vectors, and matrices to higher dimensions. It is essentially an array of numbers that can represent data in various forms, such as images, time-series, or even text.
+
 # Convolutional Layers
 # These layers extract features from the input images by applying filters (kernels) that detect patterns like edges, textures, and more complex shapes as the network goes deeper.
 
