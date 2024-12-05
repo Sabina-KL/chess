@@ -17,6 +17,14 @@ SQUARE_HEIGHT = 135 # 224
 # Define your class names
 CLASS_NAMES = ['bishop', 'empty', 'king', 'knight', 'pawn', 'queen', 'rook']
 
+# Convolutional Layers
+# These layers extract features from the input images by applying filters (kernels) that detect patterns like edges, textures, and more complex shapes as the network goes deeper.
+
+# Defines a Convolutional Neural Network with 2 convolutional layers followed by fully connected (dense) layers.
+# Conv1: Extracts basic features (e.g., edges).
+# Conv2: Extracts more complex features.
+# Flattening: Converts the 2D output to a 1D vector for fully connected layers.
+# Fully Connected Layer: Maps extracted features to one of the CATEGORY_CLASSES.
 class NeuralNet(nn.Module):
     def __init__(self):
         super(NeuralNet, self).__init__()
@@ -33,13 +41,15 @@ class NeuralNet(nn.Module):
         self.relu_2 = nn.ReLU()
         self.maxpool_2 = nn.MaxPool2d(3, 2)
         
+        #  Flattening Layer
+        # After feature extraction, the 2D feature map is flattened into a 1D vector to be used by the fully connected layers
         # Calculate flattened size automatically
         # Run a dummy input through conv layers
         dummy_input = torch.zeros(1, 3, 135, 135)
         dummy_output = self._forward_conv_layers(dummy_input)
         flattened_size = dummy_output.view(-1).size(0)
         
-        # Fully Connected Layers
+        # Fully Connected Layers- These layers perform classification based on the features extracted.
         self.fc1 = nn.Linear(flattened_size, 32)
         self.fc2 = nn.Linear(32, CATEGORY_CLASSES)
     
@@ -57,6 +67,7 @@ class NeuralNet(nn.Module):
         x = self.fc2(x)
         return x
 
+# Confusion Matrix - Visualizes the confusion matrix, showing how well each class is predicted.
 def plot_confusion_matrix(cm, class_names):
     plt.figure(figsize=(10, 7))
     sns.heatmap(cm, annot=True, fmt='d', cmap="Blues", xticklabels=class_names, yticklabels=class_names)
@@ -97,7 +108,8 @@ def main():
     
     epoch_max = 40
 
-    # Define transformations with various augmentations
+    # Define transformations with various augmentations - transformers refer to a set of data augmentation and preprocessing techniques applied to input images before they are fed into the neural network. 
+    # These transformers help standardize, augment, and convert image data into a suitable format for training
     transform = transforms.Compose([
         transforms.Resize([SQUARE_WIDTH ,SQUARE_HEIGHT]),
         transforms.RandomHorizontalFlip(),
@@ -136,7 +148,7 @@ def main():
     train_loader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=4)
     test_loader = torch.utils.data.DataLoader(test_data, batch_size=batch_size, shuffle=True, num_workers=4)
 
-    # Device setup
+    # Device setup - Detects available hardware (GPU or CPU) to optimize computations.
     if torch.backends.mps.is_available():  # For Apple Silicon GPUs (macOS)
         device = torch.device("mps")
     elif torch.cuda.is_available():  # For NVIDIA GPUs on Linux/Windows
@@ -147,14 +159,23 @@ def main():
     # Move the model to the selected device
     net = NeuralNet().to(device)
     loss_function = nn.CrossEntropyLoss()
-    # optimizer = optim.Adam(net.parameters(), lr=0.001, weight_decay=1e-4)
     
+    # An optimizer updates the parameters (weights and biases) of a neural network during training based on the computed gradients from backpropagation. 
+    # It determines how the network's weights are adjusted to minimize the loss function
+    # weights and biases are the parameters of a neural network that are learned during training. These parameters determine how the network processes input data and produces output predictions
+    
+    #     Weights determine how much importance to give to each input (like each ingredient).
+    # If you’re trying to predict something, the network will adjust these weights to find the right balance for accurate predictions.
+    
+#     They adjust the weights and biases after each mistake (error) so the network gets better at predicting the right answer.
+# The optimizer updates the parameters (weights and biases) in the right direction and by the right amount
     optimizer = torch.optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
-    # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.1)
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=0.1)  # Adjusted step_size
 
-    manual_train = True  # Set this to True to trigger training
+    manual_train = True  # Set this to True to trigger training 
 
+    # Training Loop
+    # Loss and accuracy are calculated on this dataset, and the model improves its predictions by minimizing the loss.
     if manual_train:
         for epoch in range(epoch_max):
             print(f'Training epoch {epoch}....')
@@ -164,9 +185,9 @@ def main():
                 inputs, labels = data
                 inputs, labels = inputs.to(device), labels.to(device)
                 optimizer.zero_grad()
-                outputs = net(inputs)
-                loss = loss_function(outputs, labels)
-                loss.backward()
+                outputs = net(inputs) # predicting outputs
+                loss = loss_function(outputs, labels) # difference between prediction and actual labels
+                loss.backward() # updating weights
                 optimizer.step()
                 running_loss += loss.item()
 
@@ -174,6 +195,9 @@ def main():
             print(f'Training Loss: {avg_train_loss:.4f}')
 
             # Validation phase
+            # loss is a measure of how well the model's predictions match the actual target values
+            # Evaluation Loss Reflects Real-World Performance - The validation set mimics unseen data, giving a better estimate of how the model will perform in practical applications. giving "real world" conditions 
+            # this imporoves training because just gathering and learning isn't enough durring real tests
             net.eval()
             val_loss = 0.0
             with torch.no_grad():
@@ -195,6 +219,7 @@ def main():
             else:
                 epochs_no_improve += 1
 
+            # Stops training if validation loss does not improve after a set number of epochs (overlifting) - model starts learning noise and irrelevant data so it needs to be stoped otherwise it will briong bad eveluation results and predictions
             if epochs_no_improve == early_stopping_patience:
                 print(f'Early stopping triggered at epoch {epoch}.')
                 break
@@ -214,6 +239,7 @@ def main():
     # List of class names
     class_names = train_data.classes 
     
+    # Model Evaluation - Calculates accuracy by comparing predicted and actual labels
     if evaluate_model:
         net.eval()
         correct = 0

@@ -19,10 +19,10 @@ def predict(images):
     predicted_classes = []
     
     model = NeuralNet()
-    model.load_state_dict(torch.load('trained_net.pth'))  # Load the saved weights
+    model.load_state_dict(torch.load('trained_net.pth'))  # Load the saved weights - checkpoint or saved model file created during or after training a neural network. It stores the essential components needed to reuse or deploy the trained model without having to retrain it from scratch.
     model.eval()  # Set model to evaluation mode
     
-    with torch.no_grad():  # Disable gradient calculation
+    with torch.no_grad():  # Disable gradient calculation - gradients are like the "notes" the CNN model creates durring learning phase - we need to remove those and solve efficently without the "learning notes"
         for image_path in images:
             # Load the image and apply transformations
             img = Image.open(image_path).convert('RGB')
