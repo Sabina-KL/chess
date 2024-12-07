@@ -6,6 +6,7 @@ import os  # Import the os module
 import torch
 import torchvision.transforms as transforms
 from my_neural_net import NeuralNet, get_classes, SQUARE_WIDTH ,SQUARE_HEIGHT  # Import the pre-trained network
+from fileUtil import delete_temp_images
 
 # Make a prediction using the model
 def predict(images):
@@ -43,10 +44,6 @@ def predict(images):
             })
 
     return predicted_classes  # Return list of predicted class indices
-
-# TODO: implement images delete after scaN OR set them as temporary files
-def delete_temp_images():
-    print(f"Deleeting images after scan complete")
 
 # Open an image file PIL array
 def get_images_cropped(image_path):
@@ -123,8 +120,7 @@ def scan_pieces(file):
         }
         
         # Print each prediction for verification
-        print(f"Predicted Class for square {index + 1}: {class_name}")
-        
-        # TODO: delete files after prediction is done
+        print(f"Predicted Class for square {index + 1}: {class_name}")       
     
+    delete_temp_images()
     return predictions

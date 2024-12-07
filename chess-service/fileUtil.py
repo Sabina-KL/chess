@@ -49,3 +49,21 @@ def process_image_upload(req):
     except Exception as e:
         # Catch any errors during file handling or scanning
         return ""
+
+
+def delete_temp_images():
+    print("delete_temp_images method called")  # Debug statement
+    if not os.path.exists(UPLOAD_FOLDER):
+        print(f"Folder {UPLOAD_FOLDER} does not exist.")
+        return
+    
+    try:
+        for item in os.listdir(UPLOAD_FOLDER):
+            item_path = os.path.join(UPLOAD_FOLDER, item)
+            
+            if os.path.isfile(item_path):
+                os.unlink(item_path)  # Remove the image file
+                print(f"Deleted image: {item_path}")
+                
+    except Exception as e:
+        print(f"Failed to delete {item_path}: {e}")

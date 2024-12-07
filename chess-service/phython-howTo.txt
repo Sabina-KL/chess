@@ -125,3 +125,7 @@ l (list): Show the current location in the source code and a few surrounding lin
 h (help): Display help on commands, or provide help for a specific command.
 
 Example: h n will show help for the n command.
+
+
+IMPORTANT:
+ctrl + C when you add new functionality, then run "run flask" again
