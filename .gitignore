@@ -12,6 +12,8 @@ __pycache__
 .idea/
 .DS_Store
 
+# Ignore virtual environment
+chess-service/venv/
 
 # Ignore large library files if they exist
 **/matplotlib/*
