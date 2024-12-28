@@ -18,9 +18,27 @@ from flask_cors import CORS
 from routes import routes  # Import the routes blueprint
 
 app = Flask(__name__)
+
+# Detect the environment based on the presence of specific environment variables
+is_heroku = 'PORT' in os.environ  # Heroku sets the PORT variable
+is_debug = not is_heroku  # If not Heroku, assume local development by default
+
 # force debug mode! - switch to true if you want to debug
-app.config['DEBUG'] = False
-app.config['ENV'] = 'development'
+# app.config['DEBUG'] = False
+# app.config['ENV'] = 'development'
+
+# Configure app settings based on the environment
+if is_debug:
+    # Local development settings
+    app.config['DEBUG'] = True
+    app.config['ENV'] = 'development'
+    port = 5001  # Default port for local development
+else:
+    # Heroku production settings
+    app.config['DEBUG'] = False
+    app.config['ENV'] = 'production'
+    port = int(os.environ.get('PORT', 5000))  # Use Heroku's assigned port - If the PORT environment variable is not set (e.g., running locally), the code falls back to a default port of 5000. 
+    
 
 # Ensure the upload folder exists
 UPLOAD_FOLDER = '/Users/sabina.livny/Desktop/React/chess/chess-service/uploads'  # Specify your desired folder
@@ -39,11 +57,17 @@ app.register_blueprint(routes)
 
 @app.route('/')
 def index():
-    return jsonify({"message": "Welcome to the Chess API!"})
+    return jsonify({
+        "message": "Welcome to the Chess API!",
+        "environment": app.config['ENV']
+    })
 
-#Run this command if you want to change the port: flask run --port 5001
+# Check if Flask is running and set configurations dynamically
 if __name__ == '__main__':
-    app.run(debug=True, port=5001) 
+    print(f"Starting Flask app in {'Heroku' if is_heroku else 'local'} mode")
+    print(f"Running on port {port}")
+    app.run(debug=app.config['DEBUG'], host='0.0.0.0', port=port)
+
 
 
 
