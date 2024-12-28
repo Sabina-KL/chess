@@ -129,3 +129,41 @@ Example: h n will show help for the n command.
 
 IMPORTANT:
 ctrl + C when you add new functionality, then run "run flask" again
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+DOWNLOAD FROM GIT AND START THE PROJECT:
+A -------------------------------------------------------
+
+1. mkdir your-project-folder
+cd your-project-folder
+ 
+2. git init
+
+3. git remote add origin https://github.com/Sabina-KL/chess.git
+
+4. git remote add chess-v2-remote https://github.com/Sabina-KL/chess-app.git
+
+5. git remote -v
+
+6. git fetch origin
+
+7. git fetch chess-v2-remote
+
+8. git checkout origin/main
+
+9. git checkout -b chess-v2 chess-v2-remote/chess-v2
+
+B -------------------------------------------------------
+1. cd chess-app
+
+2. npm install
+
+C -------------------------------------------------------
+1.  cd chess-service
+
+2. source venv/bin/activate
+
+3. pip install -r requirements.txt
+
+4. flask run
