@@ -1,0 +1,7 @@
+on: push
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send notification
+        run: echo "Code was changed on on chess app!"
